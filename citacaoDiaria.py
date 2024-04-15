@@ -1,11 +1,9 @@
 from random import randint;
-from tkinter import  *;
+from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 
-
-choice = int(input('Sua escolha: '))
-
-if choice == 1:
+def mensagem():
     with open('citacoes.txt', 'r') as ler:
         lista_citacoes = (ler.read()).split(';')
 
@@ -14,39 +12,74 @@ if choice == 1:
         citacao = lista_citacoes[n]
         citacao = citacao.split(' - ')
         autor = citacao[1]
-        citacao = citacao[0]
-    
+        frase = citacao[0]
+
+        citacao = f'{frase}\n\n{autor}'
+
         ler.close()
+    
+    m = messagebox.showinfo(title='Citação:', message=citacao, _icon='quote.ico')
+    return m 
 
-    print(citacao)
-    print(autor)
+# choice = int(input('Sua escolha: '))
+
+# if choice == 1:
+   
+
+#     print(citacao)
+#     print(autor)
 
 
-if choice == 2:
-    with open('citacoes.txt', 'a') as gravar:
-        frase = '"'+ input('Digite a frase aqui: ') + '"'
-        autor = input('Digite o nome do autor aqui: ')
+# if choice == 2:
+#     with open('citacoes.txt', 'a') as gravar:
+#         frase = '"'+ input('Digite a frase aqui: ') + '"'
+#         autor = input('Digite o nome do autor aqui: ')
 
-        citacao = (f'{frase} - {autor};')
-        print(citacao)
-        gravar.write(citacao)
+#         citacao = (f'{frase} - {autor};')
+#         print(citacao)
+#         gravar.write(citacao)
 
-        gravar.close()
+#         gravar.close()
 
 
 # Criação da janela pop up
     
-# app = Tk()
-# app.title('Citação Diaria')
+menu = Tk()
+menu.title('Citação Diaria')
+menu.iconbitmap('assets/quote.ico')
 
-# app.geometry('500x300')
+# resolução da caixa
+largura = 400
+altura = 400
 
-# Label(app, text='Menu').pack()
-# # tb_num = Entry(app, txtvariable=)
+# resoluçao do sistema
+largura_screen = menu.winfo_screenwidth()
+altura_screen = menu.winfo_screenheight()
 
-# # messagebox.showinfo()
-# # messagebox.showinfo(title='Citação:', message=lista_citacoes[n])
+# calculando a posição
+posx = int(largura_screen/2 - largura/2)
+posy = int(altura_screen/2 - altura/2)
 
-# app.mainloop()
+#  definindo a geometry
+menu.geometry(f'{largura}x{altura}+{posx}+{posy}')
+
+
+caixa = ttk.Frame(menu, padding=10)
+caixa.grid()
+ttk.Label(caixa, text='Menu').grid(column=1, row=1)
+
+
+
+ttk.Button(caixa, text='Show', command=mensagem,).grid(column=1, row=2)
+
+
+
+
+
+# tb_num = Entry(menu, txtvariable=)
+
+# messagebox.showinfo()
+
     
-#     # print(lista_citacoes[n])
+menu.mainloop()
+    # print(lista_citacoes[n])
