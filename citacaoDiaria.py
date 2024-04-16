@@ -32,6 +32,39 @@ def gravarCit(janela, vec, vea):
     
     janela.destroy()
 
+def salvarEdit(janela, texto):
+
+    caracteres = list(texto)
+
+    # Lista para armazenar os caracteres sem '\n'
+    caracteres_sem_n = []
+
+    # Variável para acompanhar se o caractere anterior foi '\n'
+    caractere_anterior_n = False
+
+    # Percorrendo a lista de caracteres
+    for char in caracteres:
+        # Verificando se o caractere atual é '\n' e o anterior também foi '\n'
+        if char == '\n' and caractere_anterior_n:
+            # Se ambos forem '\n', não adicionamos ';' à lista
+            continue
+        # Adicionando o caractere à lista caracteres_sem_n
+        caracteres_sem_n.append(char)
+        # Atualizando o valor de caractere_anterior_n
+        caractere_anterior_n = (char == '\n')
+
+    # Substituindo todas as ocorrências de dois '\n' por um ';'
+    caracteres_sem_n = [char if char != '\n' else ';' for char in caracteres_sem_n]
+    citacoes = caracteres_sem_n
+    citacoes = ''.join(citacoes)
+
+    with open('citacoes.txt', 'w') as gravar:
+            gravar.write(citacoes)
+
+
+
+    janela.destroy()
+
 def mensagem():
     with open('citacoes.txt', 'r') as ler:
         lista_citacoes = (ler.read()).split(';')
@@ -41,7 +74,10 @@ def mensagem():
         citacao = lista_citacoes[n]
         citacao = citacao.split(' - ')
 
-        autor = citacao[1]
+        try:
+            autor = citacao[1]
+        except IndexError:
+            print(citacao)
         frase = citacao[0]
 
         citacao = f'{frase}\n\n{autor}'
@@ -52,18 +88,22 @@ def mensagem():
     janela_citacao = Toplevel()
     janela_citacao.title('Citação Diária')
 
+    # Container pai
+    caixa = ttk.Frame(janela_citacao, padding=20)
+    caixa.pack(expand=True)
+
     # Carregando a imagem
     imagem = PhotoImage(file='assets/quote.png')
-    label_imagem = Label(janela_citacao, image=imagem)
-    label_imagem.pack()
+    label_imagem = Label(caixa, image=imagem)
+    label_imagem.pack(side='top', pady=10)
 
 
     # Adicionando a citação
-    label_citacao = Label(janela_citacao, text=citacao)
+    label_citacao = Label(caixa, text=citacao)
     label_citacao.pack()
 
     # Adicionando botão 'i got it'
-    botao = Button(janela_citacao, text='I got it', command=lambda: clique_do_botao(janela_citacao))
+    botao = Button(caixa, text='I got it', command=lambda: clique_do_botao(janela_citacao))
     botao.pack()
 
     # Atribuindo os retornos da função posXY
@@ -90,7 +130,7 @@ def adicionarCit():
     # Adicionando uma imagem a janela
     imagem = PhotoImage(file='assets/quote.png')
     label_imagem = Label(caixa_2, image=imagem)
-    label_imagem.pack(side='top', pady=20)
+    label_imagem.pack(side='top', pady=10)
 
     # Criando variaveis para armazenar os valores das 'entrys'
     valor_entry_citacao = StringVar()
@@ -116,18 +156,6 @@ def adicionarCit():
     janela_add_citacao.mainloop()
 
 def mostrarTodas():
-    print('teste')
-    janela_citacoes = Toplevel()
-    janela_citacoes.title('Citações')
-
-    pos_x, pos_y= posXY()
-    janela_citacoes.geometry(f'+{pos_x}+{pos_y}')
-
-
-    # Adicionando icone
-    imagem = PhotoImage(file='assets/quote.png')
-    label_imagem = Label(janela_citacoes, image=imagem)
-    label_imagem.pack()
 
     with open('citacoes.txt', 'r') as ler:
         lista_citacoes = (ler.read()).split(';')
@@ -135,25 +163,122 @@ def mostrarTodas():
         citacao = ''
 
         for i in lista_citacoes:
-            if i == '':
-                  continue
+            for j in i:
 
-            citacao = citacao + i + '\n' 
+                if i == '':
+                    continue
+
+            citacao = citacao + i + '\n\n' 
 
 
         ler.close()
+
+    janela_citacoes = Toplevel()
+    janela_citacoes.title('Citações')
+
+    # Criando container
+    caixa = ttk.Frame(janela_citacoes, padding=20)
+    caixa.pack(expand=True)
+
+    # Adicionando icone
+    imagem = PhotoImage(file='assets/quote.png')
+    label_imagem = Label(caixa, image=imagem)
+    label_imagem.image = imagem
+    label_imagem.pack(side='top', pady=5)
+
+    # Adiciona label
+    label_text = Label(caixa, text='Segue abaixo todas as citações:')
+    label_text.pack(pady=10)
+        
+
+    # Criando caixa para mostrar as citações
+    text_area = Text(caixa, wrap="word" ,borderwidth=20, state="disabled")
+    text_area.pack(side="left", fill="both", expand=True)
+
+    # Inserindo as citações
+    text_area.config(state="normal")
+    text_area.insert("1.0", citacao)
+    text_area.config(state="disabled")
+
+    # Adicionar barra de rolagem lateral
+    scroll_bar = Scrollbar(caixa, command=text_area.yview)
+    scroll_bar.pack(side="right", fill="y")
+    text_area.config(yscrollcommand=scroll_bar.set)
     
-    label_citacao = Label(janela_citacoes, text='teste')
-    label_citacao.pack()
+    # Posicionando a janela
+    pos_x, pos_y= posXY()
+    janela_citacoes.geometry(f'+{pos_x}+{pos_y}')
+
+def editarCit():
+
+    with open('citacoes.txt', 'r') as ler:
+        lista_citacoes = (ler.read()).split(';')
+
+        citacao = ''
+
+        for i in lista_citacoes:
+            for j in i:
+
+                if i == '':
+                    continue
+
+            citacao = citacao + i + '\n\n' 
 
 
+        ler.close()
+
+    janela = Toplevel()
+    janela.title('Citações')
+
+    # Criando container
+    caixa = ttk.Frame(janela, padding=20)
+    caixa.pack(expand=True)
+
+    # Adicionando icone
+    imagem = PhotoImage(file='assets/quote.png')
+    label_imagem = Label(caixa, image=imagem)
+    label_imagem.image = imagem
+    label_imagem.pack(side='top', pady=10)
+
+    # Adiciona label
+    label_text = Label(caixa, text='Segue abaixo todas as citações:')
+    label_text.pack(pady=5)
+
+    # Container
+    container_citacoes = ttk.Frame(caixa, padding=10)
+    container_citacoes.pack()
+
+
+    
+
+
+    # Criando caixa para mostrar as citações
+    text_area = Text(container_citacoes, wrap="word" ,borderwidth=20)
+    text_area.pack(side="left", fill="both", expand=True)
+
+    # Inserindo as citações
+    text_area.insert("1.0", citacao)
+
+    # Adicionar barra de rolagem lateral
+    scroll_bar = Scrollbar(container_citacoes, command=text_area.yview)
+    scroll_bar.pack(side="right", fill="y")
+    text_area.config(yscrollcommand=scroll_bar.set)
+    
+    getTexto = lambda: text_area.get('1.0', 'end')
+
+    # Adicionando botão
+    botao_enviar = ttk.Button(caixa, text='Salvar edições', command=lambda: salvarEdit(janela, getTexto()), width=10).pack(side='bottom')
+
+    # Posicionando a janela
+    pos_x, pos_y= posXY()
+    janela.geometry(f'+{pos_x}+{pos_y}')
 
 
 
 # Criação da janela principal
 menu = Tk()
 menu.title('Citação Diaria')
-menu.iconbitmap('assets/quote.ico')
+# menu.iconbitmap('assets/quote.ico')
 
 # Forçar atualização do cache do Tkinter
 menu.update_idletasks()
@@ -164,13 +289,20 @@ menu.geometry(f'+{pos_x}+{pos_y}')
 
 # Criando a interface para centralizar
 caixa = ttk.Frame(menu, padding=40)
-caixa.grid(sticky='nsew')
+caixa.pack(expand=True)
+
+# Adicionando imagem ao menu inicial
+imagem = PhotoImage(file='assets/quote.png')
+label_imagem = Label(caixa, image=imagem)
+label_imagem.image = imagem
+label_imagem.pack(side='top', pady=10)
 
 # Criando a interface
-ttk.Label(caixa, text='Clique em uma das opções abaixo: ').grid(column=0, row=1, sticky='nsew')
-ttk.Button(caixa, text='1 - Take one', command=mensagem).grid(column=0, row=2, sticky='nsew')
-ttk.Button(caixa, text='2 - Add one', command=adicionarCit).grid(column=0, row=3, sticky='nsew')
-ttk.Button(caixa, text='3 - Show all', command=mostrarTodas).grid(column=0, row=4, sticky='nsew')
+ttk.Label(caixa, text='Escolha uma das opções abaixo:').pack()
+ttk.Button(caixa, text='1 - Take one', command=mensagem, width=10).pack()
+ttk.Button(caixa, text='2 - Add one', command=adicionarCit, width=10).pack()
+ttk.Button(caixa, text='3 - Show all', command=mostrarTodas, width=10).pack()
+ttk.Button(caixa, text='4 - Edit all', command=editarCit, width=10).pack()
 
 
 menu.mainloop()
